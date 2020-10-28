@@ -2,7 +2,7 @@
  * Project: Midterm Project
  * Description: Smart Room Controller
  * Author: Janel Sanchez
- * Date: 26-Oct-2020
+ * Date: 27-Oct-2020
 */
 
 void setup() {
