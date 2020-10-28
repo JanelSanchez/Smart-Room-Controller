@@ -12,8 +12,13 @@
 #include <hue.h>
 #include <Adafruit_NeoPixel.h>
 #include <colors.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_BME280.h>
 
 EthernetClient client;
+Adafruit_BME280 bme;
 
 // Declare Bools
 bool status;
@@ -30,12 +35,33 @@ const int pinA=2;
 const int pinB=3;
 const int encGreen=23;
 
+const int buttonPinBlue = 14;
+int buttonStateBlue = 0;
+const int ledPinBlue = 6;
+
+const int buttonPinYellow = 15;
+int buttonStateYellow = 0;
+const int ledPinYellow = 7;
+
+const int buttonPinRed = 16;
+int buttonStateRed = 0;
+const int ledPinRed = 8;
+
 // Declare Variables 
 int ultraState;   // variable for the distance measurement
 
 
 Adafruit_NeoPixel pixel(pixelCount, pixelPin, NEO_GRB + NEO_KHZ800);
 Encoder myEnc(pinA,pinB);
+
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define OLED_RESET    22 // Reset pin # (or -1 if sharing Arduino reset pin)(Use pin not in use)
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+float tempC;
+float tempF = 0;
 
 void setup() {
   pinMode(nssPin, OUTPUT); //Sets the nssPin as an OUTPUT
@@ -44,6 +70,13 @@ void setup() {
 
   pinMode(encGreen,OUTPUT);
   digitalWrite(encGreen,LOW);
+
+  pinMode (buttonPinBlue,INPUT);
+  pinMode (ledPinBlue, OUTPUT);
+  pinMode (buttonPinYellow,INPUT);
+  pinMode (ledPinYellow, OUTPUT);
+  pinMode (buttonPinRed,INPUT);
+  pinMode (ledPinRed, OUTPUT);
   
   Serial.begin(9600);
   delay(100);         // wait for Serial Monitor to Open 
@@ -69,6 +102,29 @@ void setup() {
 
   pixel.begin();
   pixel.show();
+
+  status = bme.begin(0x76);
+  if(!status) {
+    Serial.println("Initialization Failed");
+  }
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
+  }
+
+  // Show initial display buffer contents on the screen --
+  // the library initializes this with an Adafruit splash screen.
+  display.display();
+  delay(2000); // Pause for 2 seconds
+
+  // Clear the buffer
+  display.clearDisplay();
+
+  // Show the display buffer on the screen. You MUST call display() after
+  // drawing commands to make them visible on screen!
+  display.display();
+  delay(2000);
 }
 
 void loop() {
@@ -86,10 +142,17 @@ void loop() {
   
   if(roomOccupied == true) {
     Serial.println("SOMEONE IS IN THE ROOM");
+    displaybmevalues();    // display the BME values
   }
   else {
     Serial.println("NO ONE IS IN THE ROOM");
-  }  
+    display.clearDisplay();
+    display.display();
+  }
+  tempC = bme.readTemperature();  
+  tempF = (tempC*1.8)+32;
+
+  buttons();
 }
 
 bool ultra() {
@@ -158,3 +221,66 @@ int encBrightness() {
   encBright=map(encPosition,0,95,0,255);
   return encBright;
 }
+
+void displaybmevalues() {
+  Serial.printf("Display to the Display \n");
+  const char degreeSymbol=247;
+
+  display.clearDisplay();
+
+  display.setTextSize(2);             // Normal 1:1 pixel scale
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.setCursor(0,0);             // Start at top-left corner
+  display.printf("Temp \n \n   %0.1f%cF \n", tempF,degreeSymbol);
+  display.display();
+}
+
+void buttons() {
+  static bool lastButton;
+  bool buttonStateBlue;  
+  
+  buttonStateBlue=digitalRead(buttonPinBlue);
+  if(buttonStateBlue!=lastButton) {
+    if(buttonStateBlue == HIGH) {
+      ledPinBlue == HIGH;
+    }    
+    lastButton=buttonStateBlue;
+  }
+//  if(wemoState == HIGH) {
+//    wemo.switchON(0);
+//  }
+//  else {
+//      wemo.switchOFF(0);
+//  }
+}
+
+//void buttons() {
+//  static bool lastButton;
+//  bool buttonStateBlue;
+//  
+//  buttonStateBlue = digitalRead(buttonPinBlue);
+//  buttonStateYellow = digitalRead(buttonPinYellow);
+//  buttonStateRed = digitalRead(buttonPinRed);
+//  
+//  if (buttonStateBlue == HIGH) {
+//    digitalWrite (ledPinBlue, HIGH);
+//    Serial.printf("Blue LED ON \n");
+//  } else {
+//    digitalWrite(ledPinBlue, LOW);
+//    Serial.printf("Blue LED OFF \n");
+//  }
+//  if (buttonStateYellow == HIGH) {
+//    digitalWrite (ledPinYellow, HIGH);
+//    Serial.printf("Yellow LED ON \n");
+//  } else {
+//    digitalWrite(ledPinYellow, LOW);
+//    Serial.printf("Yellow LED OFF \n");
+//  }
+//  if (buttonStateRed == HIGH) {
+//    digitalWrite (ledPinRed, HIGH);
+//    Serial.printf("Red LED ON \n");
+//  } else {
+//    digitalWrite(ledPinRed, LOW);
+//    Serial.printf("Red LED OFF \n");
+//  }
+//}
