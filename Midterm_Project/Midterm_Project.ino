@@ -10,6 +10,8 @@
 #include <Encoder.h>
 #include <mac.h>
 #include <hue.h>
+#include <Adafruit_NeoPixel.h>
+#include <colors.h>
 
 EthernetClient client;
 
@@ -23,6 +25,8 @@ bool roomOccupied;
 const int echoPin=1; // attach digital pin Echo of HC-SR04
 const int trigPin=0; //attach digital pin Trig of HC-SR04
 const int nssPin=10; //attach pin nSS of Ethernet
+const int pixelPin=20; //attch digital pin DI of Pixel strip
+const int pixelCount=60;
 
 // Declare Variables 
 int ultraState;   // variable for the distance measurement
@@ -30,6 +34,8 @@ int lightNum;
 int HueColor;
 int HueBright;
 int encPosition;
+
+Adafruit_NeoPixel pixel(pixelCount, pixelPin, NEO_GRB + NEO_KHZ800);
 
 
 void setup() {
@@ -58,6 +64,9 @@ void setup() {
   Serial.println();
 
   HueBright=188;
+
+  pixel.begin();
+  pixel.show();
 }
 
 void loop() {
@@ -68,13 +77,15 @@ void loop() {
     }
     lastUltra=ultraState;
   }
+  
   hue(roomOccupied);
+  pixels(!roomOccupied);
+  
   if(roomOccupied == true) {
     Serial.println("SOMEONE IS IN THE ROOM");
   }
   else {
     Serial.println("NO ONE IS IN THE ROOM");
-//    pixel();
   }  
 }
 
@@ -109,5 +120,21 @@ void hue(bool hueState) {
   for(i=1;i<=5;i++) {
     setHue(i,hueState,HueYellow,HueBright);
     Serial.printf("HueOn is %i, For Bulb %i \n",hueState,i);
+  }
+}
+
+void pixels(bool pixelState) {
+  int j;
+  int redPixel;
+  int pix;
+  int color;
+  for(redPixel=0; redPixel<pixelCount; redPixel=redPixel+7) {
+    for(j=0; j<7; j++) {
+      pix = redPixel+j;
+      color = pixelState*rainbow[j];
+      pixel.setPixelColor(pix,color);
+      pixel.setBrightness(15);
+      pixel.show();
+    }
   }
 }
