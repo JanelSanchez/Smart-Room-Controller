@@ -47,7 +47,7 @@ void setup() {
   
   Serial.begin(9600);
   delay(100);         // wait for Serial Monitor to Open 
-  Serial.println("Starting my amazing Midterm Project Program");
+  Serial.println("Starting my AMAZING Smart Room Controller Project Program");
 
 //Start ethernet connection
   status = Ethernet.begin(mac);

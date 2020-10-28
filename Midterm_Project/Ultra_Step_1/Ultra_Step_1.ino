@@ -9,35 +9,23 @@
 #include <Ethernet.h>
 #include <Encoder.h>
 #include <mac.h>
-#include <hue.h>
-#include <Adafruit_NeoPixel.h>
-#include <colors.h>
 
 EthernetClient client;
 
 // Declare Bools
 bool status;
-bool HueOn;
-bool lightState;
-bool lastLight;
 bool lastUltra;
 bool roomOccupied;
+
 
 // Declare Constants
 const int echoPin=1; // attach digital pin Echo of HC-SR04
 const int trigPin=0; //attach digital pin Trig of HC-SR04
 const int nssPin=10; //attach pin nSS of Ethernet
-const int pixelPin=20; //attch digital pin DI of Pixel strip
-const int pixelCount=60;
+
 
 // Declare Variables 
 int ultraState;   // variable for the distance measurement
-int lightNum;
-int HueColor;
-int HueBright;
-int encPosition;
-
-Adafruit_NeoPixel pixel(pixelCount, pixelPin, NEO_GRB + NEO_KHZ800);
 
 
 void setup() {
@@ -47,7 +35,7 @@ void setup() {
   
   Serial.begin(9600);
   delay(100);         // wait for Serial Monitor to Open 
-  Serial.println("Starting my amazing Midterm Project Program");
+  Serial.println("Starting my AMAZING Smart Room Controller Project Program");
 
 //Start ethernet connection
   status = Ethernet.begin(mac);
@@ -64,11 +52,6 @@ void setup() {
     if (thisbyte < 3) Serial.print(".");
     }
   Serial.println();
-
-  HueBright=188;
-
-//  pixel.begin();
-//  pixel.show();
 }
 
 void loop() {
@@ -79,13 +62,11 @@ void loop() {
     }
     lastUltra=ultraState;
   }
-  hue(roomOccupied);
   if(roomOccupied == true) {
     Serial.println("SOMEONE IS IN THE ROOM");
   }
   else {
     Serial.println("NO ONE IS IN THE ROOM");
-//    pixel();
   }  
 }
 
@@ -114,22 +95,3 @@ bool ultra() {
     return false;
   }
 }
-
-void hue(bool hueState) {
-  int i;
-  for(i=1;i<=5;i++) {
-    setHue(i,hueState,HueYellow,HueBright);
-    Serial.printf("HueOn is %i, For Bulb %i \n",hueState,i);
-  }
-}
-
-//void pixels() {
-//  int pixel;
-//  for (pixel=0; pixel<0; i++) {
-//    pixel.setPixelColor(pixel,0xBBBB);
-//    pixel.setBrightness(25);
-//    pixel.show();
-//    delay(250);
-//    pixel.clear();
-//  }  
-//}
