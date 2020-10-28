@@ -17,7 +17,6 @@ EthernetClient client;
 
 // Declare Bools
 bool status;
-bool HueOn;
 bool lastUltra;
 bool roomOccupied;
 
@@ -27,21 +26,24 @@ const int trigPin=0; //attach digital pin Trig of HC-SR04
 const int nssPin=10; //attach pin nSS of Ethernet
 const int pixelPin=20; //attch digital pin DI of Pixel strip
 const int pixelCount=60;
+const int pinA=2;
+const int pinB=3;
+const int encGreen=23;
 
 // Declare Variables 
 int ultraState;   // variable for the distance measurement
-int lightNum;
-int HueColor;
-int HueBright;
-int encPosition;
+
 
 Adafruit_NeoPixel pixel(pixelCount, pixelPin, NEO_GRB + NEO_KHZ800);
-
+Encoder myEnc(pinA,pinB);
 
 void setup() {
   pinMode(nssPin, OUTPUT); //Sets the nssPin as an OUTPUT
   pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
   pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
+
+  pinMode(encGreen,OUTPUT);
+  digitalWrite(encGreen,LOW);
   
   Serial.begin(9600);
   delay(100);         // wait for Serial Monitor to Open 
@@ -63,7 +65,7 @@ void setup() {
     }
   Serial.println();
 
-  HueBright=188;
+  myEnc.write(95);
 
   pixel.begin();
   pixel.show();
@@ -77,7 +79,8 @@ void loop() {
     }
     lastUltra=ultraState;
   }
-  
+
+  digitalWrite(encGreen,!roomOccupied);
   hue(roomOccupied);
   pixels(!roomOccupied);
   
@@ -117,6 +120,8 @@ bool ultra() {
 
 void hue(bool hueState) {
   int i;
+  int HueBright;
+  HueBright=encBrightness();
   for(i=1;i<=5;i++) {
     setHue(i,hueState,HueYellow,HueBright);
     Serial.printf("HueOn is %i, For Bulb %i \n",hueState,i);
@@ -137,4 +142,19 @@ void pixels(bool pixelState) {
       pixel.show();
     }
   }
+}
+
+int encBrightness() {
+  int encPosition;
+  int encBright;
+  
+  encPosition=myEnc.read();
+  if(encPosition>95) {
+    myEnc.write(95);
+  }
+  if(encPosition<0) {
+    myEnc.write(0);
+  }
+  encBright=map(encPosition,0,95,0,255);
+  return encBright;
 }
