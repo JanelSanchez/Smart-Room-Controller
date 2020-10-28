@@ -9,23 +9,27 @@
 #include <Ethernet.h>
 #include <Encoder.h>
 #include <mac.h>
+#include <hue.h>
 
 EthernetClient client;
 
 // Declare Bools
 bool status;
+bool HueOn;
 bool lastUltra;
 bool roomOccupied;
-
 
 // Declare Constants
 const int echoPin=1; // attach digital pin Echo of HC-SR04
 const int trigPin=0; //attach digital pin Trig of HC-SR04
 const int nssPin=10; //attach pin nSS of Ethernet
 
-
 // Declare Variables 
 int ultraState;   // variable for the distance measurement
+int lightNum;
+int HueColor;
+int HueBright;
+int encPosition;
 
 
 void setup() {
@@ -52,6 +56,8 @@ void setup() {
     if (thisbyte < 3) Serial.print(".");
     }
   Serial.println();
+
+  HueBright=188;
 }
 
 void loop() {
@@ -62,11 +68,13 @@ void loop() {
     }
     lastUltra=ultraState;
   }
+  hue(roomOccupied);
   if(roomOccupied == true) {
     Serial.println("SOMEONE IS IN THE ROOM");
   }
   else {
     Serial.println("NO ONE IS IN THE ROOM");
+//    pixel();
   }  
 }
 
@@ -93,5 +101,13 @@ bool ultra() {
   }
   else {
     return false;
+  }
+}
+
+void hue(bool hueState) {
+  int i;
+  for(i=1;i<=5;i++) {
+    setHue(i,hueState,HueYellow,HueBright);
+    Serial.printf("HueOn is %i, For Bulb %i \n",hueState,i);
   }
 }
