@@ -2,7 +2,7 @@
  * Project: Midterm Project
  * Description: Smart Room Controller
  * Author: Janel Sanchez
- * Date: 28-Oct-2020
+ * Date: 29-Oct-2020
 */
 
 #include <SPI.h>
@@ -16,6 +16,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_BME280.h>
+#include "Wemo.h"
 
 EthernetClient client;
 Adafruit_BME280 bme;
@@ -36,16 +37,13 @@ const int pinB=3;
 const int encGreen=23;
 
 const int buttonPinBlue = 14;
-int buttonStateBlue = 0;
 const int ledPinBlue = 6;
-
 const int buttonPinYellow = 15;
-int buttonStateYellow = 0;
 const int ledPinYellow = 7;
-
 const int buttonPinRed = 16;
-int buttonStateRed = 0;
 const int ledPinRed = 8;
+
+Wemo wemo;
 
 // Declare Variables 
 int ultraState;   // variable for the distance measurement
@@ -85,7 +83,7 @@ void setup() {
 //Start ethernet connection
   status = Ethernet.begin(mac);
   if (!status) {
-    Serial.println("failed to configure Ethernet using DHCP");
+    Serial.println("Failed to configure Ethernet using DHCP");
     //no point in continueing 
     while(1);
     }
@@ -236,51 +234,70 @@ void displaybmevalues() {
 }
 
 void buttons() {
-  static bool lastButton;
-  bool buttonStateBlue;  
-  
-  buttonStateBlue=digitalRead(buttonPinBlue);
-  if(buttonStateBlue!=lastButton) {
-    if(buttonStateBlue == HIGH) {
-      ledPinBlue == HIGH;
-    }    
-    lastButton=buttonStateBlue;
-  }
-//  if(wemoState == HIGH) {
-//    wemo.switchON(0);
-//  }
-//  else {
-//      wemo.switchOFF(0);
-//  }
-}
+  static bool lastButtonBlue;
+  static bool lastButtonYellow;
+  static bool lastButtonRed;
+  bool buttonStateBlue;
+  bool buttonStateYellow;
+  bool buttonStateRed;
+  static bool wemoStateBlue;
+  static bool wemoStateYellow;
+  static bool wemoStateRed;  
 
-//void buttons() {
-//  static bool lastButton;
-//  bool buttonStateBlue;
-//  
-//  buttonStateBlue = digitalRead(buttonPinBlue);
-//  buttonStateYellow = digitalRead(buttonPinYellow);
-//  buttonStateRed = digitalRead(buttonPinRed);
-//  
-//  if (buttonStateBlue == HIGH) {
-//    digitalWrite (ledPinBlue, HIGH);
-//    Serial.printf("Blue LED ON \n");
-//  } else {
-//    digitalWrite(ledPinBlue, LOW);
-//    Serial.printf("Blue LED OFF \n");
-//  }
-//  if (buttonStateYellow == HIGH) {
-//    digitalWrite (ledPinYellow, HIGH);
-//    Serial.printf("Yellow LED ON \n");
-//  } else {
-//    digitalWrite(ledPinYellow, LOW);
-//    Serial.printf("Yellow LED OFF \n");
-//  }
-//  if (buttonStateRed == HIGH) {
-//    digitalWrite (ledPinRed, HIGH);
-//    Serial.printf("Red LED ON \n");
-//  } else {
-//    digitalWrite(ledPinRed, LOW);
-//    Serial.printf("Red LED OFF \n");
-//  }
-//}
+// BLUE BUTTON
+  buttonStateBlue=digitalRead(buttonPinBlue);
+  if(buttonStateBlue!=lastButtonBlue) {
+    if(buttonStateBlue == HIGH) {
+      wemoStateBlue = !wemoStateBlue;
+      digitalWrite(ledPinBlue,HIGH);
+      Serial.printf("Blue Button/LED is ON \n");
+    }
+    lastButtonBlue=buttonStateBlue;
+  }
+  if(wemoStateBlue == HIGH) {
+    wemo.switchON(3);
+    Serial.printf("Wemo 3 is ON \n");
+  }
+  else {
+      wemo.switchOFF(3);
+      digitalWrite(ledPinBlue,LOW);
+  }
+
+// YELLOW BUTTON
+  buttonStateYellow=digitalRead(buttonPinYellow);
+  if(buttonStateYellow!=lastButtonYellow) {
+    if(buttonStateYellow == HIGH) {
+      wemoStateYellow = !wemoStateYellow;
+      digitalWrite(ledPinYellow,HIGH);
+      Serial.printf("Yellow Button/LED is ON \n");
+    }
+    lastButtonYellow=buttonStateYellow;
+  }
+  if(wemoStateYellow == HIGH) {
+    wemo.switchON(2);
+    Serial.printf("Wemo 2 is ON \n");
+  }
+  else {
+      wemo.switchOFF(2);
+      digitalWrite(ledPinYellow,LOW);
+  }
+  
+// RED BUTTON
+  buttonStateRed=digitalRead(buttonPinRed);
+  if(buttonStateRed!=lastButtonRed) {
+    if(buttonStateRed == HIGH) {
+      wemoStateRed = !wemoStateRed;
+      digitalWrite(ledPinRed,HIGH);
+      Serial.printf("Red Button/LED is ON \n");
+    }
+    lastButtonRed=buttonStateRed;
+  }
+  if(wemoStateRed == HIGH) {
+    wemo.switchON(1);
+    Serial.printf("Wemo 1 is ON \n");
+  }
+  else {
+      wemo.switchOFF(1);
+      digitalWrite(ledPinRed,LOW);
+  }
+}
