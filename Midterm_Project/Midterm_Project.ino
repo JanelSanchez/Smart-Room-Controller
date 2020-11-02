@@ -2,7 +2,7 @@
  * Project: Midterm Project
  * Description: Smart Room Controller
  * Author: Janel Sanchez
- * Date: 29-Oct-2020
+ * Date: 02-Nov-2020
 */
 
 #include <SPI.h>
