@@ -199,7 +199,7 @@ void pixels(bool pixelState) {
       pix = redPixel+j;
       color = pixelState*rainbow[j];
       pixel.setPixelColor(pix,color);
-      pixel.setBrightness(15);
+      pixel.setBrightness(25);
       pixel.show();
     }
   }
