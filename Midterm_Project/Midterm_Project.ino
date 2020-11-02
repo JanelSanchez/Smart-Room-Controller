@@ -21,12 +21,12 @@
 EthernetClient client;
 Adafruit_BME280 bme;
 
-// Declare Bools
+// Declare Global Bools
 bool status;
 bool lastUltra;
 bool roomOccupied;
 
-// Declare Constants
+// Declare Global Constants
 const int echoPin=1; // attach digital pin Echo of HC-SR04
 const int trigPin=0; //attach digital pin Trig of HC-SR04
 const int nssPin=10; //attach pin nSS of Ethernet
@@ -45,7 +45,7 @@ const int ledPinRed = 8;
 
 Wemo wemo;
 
-// Declare Variables 
+// Declare Global Variables 
 int ultraState;   // variable for the distance measurement
 
 
